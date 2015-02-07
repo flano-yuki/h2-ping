@@ -28,7 +28,7 @@ $ ./ping.rb http://localhost/
 Usage: ping.rb [options]
     -d, --data [String]              PING payload (8bytes)
     -i, --interval [Integer]         PING interval (sec)
-    -c, --count [Integer]            number of send flame
+    -c, --count [Integer]            number of send frame
     -v, --verbose                    show all frame info
 ```
 
