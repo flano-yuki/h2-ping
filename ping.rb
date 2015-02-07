@@ -67,25 +67,25 @@ conn.on(:frame_received) do |frame|
     sended_time = (t.to_i * 1000 + t.usec / 1000.0).round
     elapsed = recived_time - sended_time
 
-    print "Recieve ACK (#{frame[:payload]}) (#{elapsed}ms)"
+    print "Recieve ACK (#{frame[:payload]}) (#{elapsed}ms)\n"
     counter += 1
     exit(0) if options[:count] && counter == options[:count].to_i
     sleep options[:interval].to_i
     payload = options[:payload] ? options[:payload] : ( "%08d" % counter )
     t = Time.now
-    print "\n#{"% 4d" % counter}.#{t.strftime("%k:%M:%S")} Send PING (#{payload})... "
+    print "#{"% 4d" % counter}.#{t.strftime("%k:%M:%S")} Send PING (#{payload})... "
 
     conn.ping(payload)
   elsif frame[:type] == :goaway
-    puts "\nRecieve GOAWAY(#{frame[:payload]})"
+    puts "Recieve GOAWAY(#{frame[:payload]})"
   end
 end
 
 
-puts "\n==== PING #{uri} (interval: #{options[:interval]}sec)===="
+puts "==== PING #{uri} (interval: #{options[:interval]}sec)====\n"
 payload = options[:payload] ? options[:payload] : ( "%08d" % counter )
 t = Time.now
-print "\n#{"% 4d" % counter}.#{t.strftime("%k:%M:%S")} Send PING (#{payload})... "
+print "#{"% 4d" % counter}.#{t.strftime("%k:%M:%S")} Send PING (#{payload})... "
 conn.ping(payload)
 
 while !sock.closed? && !sock.eof?
