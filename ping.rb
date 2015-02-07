@@ -5,7 +5,7 @@ require 'socket'
 require 'openssl'
 require 'http/2'
 require 'uri'
-DRAFT = 'h2-14'
+DRAFT = 'h2-15'
 
 options = {}
 OptionParser.new do |opts|
@@ -98,11 +98,12 @@ conn.on(:frame_received) do |frame|
     payload = options[:payload] ? options[:payload] : ( "%08d" % counter )
     t = Time.now
     print sended_message(counter, t, payload)
-
+    
+    #send ping
     conn.ping(payload)
   elsif frame[:type] == :goaway
     puts "\nRecieve GOAWAY(#{frame[:payload]})"
-    puts statics_message(min, max, sum, counter) if options[:statics]
+    puts statics_message(max, min, sum, counter) if options[:statics]
     options[:statics] == false #for not call in rescue...
   end
 end
@@ -122,11 +123,11 @@ while !sock.closed? && !sock.eof?
     conn << data
   rescue SystemExit => err
     puts "\n==== #{options[:count]} frame sended ===="
-    puts statics_message(min, max, sum, counter) if options[:statics]
+    puts statics_message(max, min, sum, counter) if options[:statics]
     exit(0)
   rescue Exception => e
     puts "Exception: #{e}, #{e.message} - closing socket."
-    puts statics_message(min, max, sum, counter) if options[:statics]
+    puts statics_message(max, min, sum, counter) if options[:statics]
     exit(0)
     sock.close
   end
