@@ -50,6 +50,18 @@ end
 
 counter = 0 #sended frame counter
 
+def statics_message(max, min, sum, counter)
+  "max:#{max}, min:#{min}, ave:#{sum / (counter + 1).to_f}"
+end
+
+def sended_message(counter, time, payload)
+  "#{"% 4d" % counter}. #{time.strftime("%k:%M:%S")} Send PING (#{payload})... "
+end
+
+def recived_message(payload, elapsed)
+  print "Recieve ACK (#{payload}) (#{elapsed}ms)\n"
+end
+
 #statics
 max = 0
 min = 0
@@ -79,18 +91,19 @@ conn.on(:frame_received) do |frame|
     min = elapsed if elapsed < min || min == 0
     sum += elapsed
 
-    print "Recieve ACK (#{frame[:payload]}) (#{elapsed}ms)\n"
+    print recived_message(frame[:payload], elapsed)
     counter += 1
     exit(0) if options[:count] && counter == options[:count].to_i
     sleep options[:interval].to_i
     payload = options[:payload] ? options[:payload] : ( "%08d" % counter )
     t = Time.now
-    print "#{"% 4d" % counter}.#{t.strftime("%k:%M:%S")} Send PING (#{payload})... "
+    print sended_message(counter, t, payload)
 
     conn.ping(payload)
   elsif frame[:type] == :goaway
     puts "\nRecieve GOAWAY(#{frame[:payload]})"
-    puts "max:#{max}, min:#{min}, ave:#{sum / (counter + 1).to_f}" if options[:statics]
+    puts statics_message(min, max, sum, counter) if options[:statics]
+    options[:statics] == false #for not call in rescue...
   end
 end
 
@@ -98,7 +111,8 @@ end
 puts "==== PING #{uri} (interval: #{options[:interval]}sec)====\n"
 payload = options[:payload] ? options[:payload] : ( "%08d" % counter )
 t = Time.now
-print "#{"% 4d" % counter}.#{t.strftime("%k:%M:%S")} Send PING (#{payload})... "
+print sended_message(counter, t, payload)
+
 conn.ping(payload)
 
 while !sock.closed? && !sock.eof?
@@ -108,15 +122,12 @@ while !sock.closed? && !sock.eof?
     conn << data
   rescue SystemExit => err
     puts "\n==== #{options[:count]} frame sended ===="
-    puts "max:#{max}, min:#{min}, ave:#{sum / (counter + 1).to_f}" if options[:statics]
+    puts statics_message(min, max, sum, counter) if options[:statics]
     exit(0)
   rescue Exception => e
     puts "Exception: #{e}, #{e.message} - closing socket."
-    puts "max:#{max}, min:#{min}, ave:#{sum / (counter + 1).to_f}" if options[:statics]
+    puts statics_message(min, max, sum, counter) if options[:statics]
     exit(0)
     sock.close
   end
-
-
-
 end
