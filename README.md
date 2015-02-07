@@ -27,7 +27,7 @@ $ ./ping.rb http://localhost/
 ```
 Usage: ping.rb [options]
     -d, --data [String]              PING payload (8bytes)
-    -n, --interval [Integer]         PING interval (sec)
+    -i, --interval [Integer]         PING interval (sec)
     -v, --verbose                    show all frame info
 ```
 

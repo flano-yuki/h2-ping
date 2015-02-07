@@ -11,7 +11,7 @@ options = {}
 OptionParser.new do |opts|
   opts.banner = "Usage: ping.rb [options]"
   opts.on("-d", "--data [String]", "PING payload (8bytes)")     do |v| options[:payload] = v end
-  opts.on("-n", "--interval [Integer]", "PING interval (sec)") do |v| options[:interval] = v end
+  opts.on("-i", "--interval [Integer]", "PING interval (sec)") do |v| options[:interval] = v end
   opts.on("-v", "--verbose", "show all frame info") do |v| options[:verbose] = true end
 end.parse!
 options[:interval] = 5 if options[:interval].nil?
