@@ -13,6 +13,7 @@ OptionParser.new do |opts|
   opts.on("-d", "--data [String]", "PING payload (8bytes)")     do |v| options[:payload] = v end
   opts.on("-i", "--interval [Integer]", "PING interval (sec)") do |v| options[:interval] = v end
   opts.on("-c", "--count [Integer]", "number of send frame") do |v| options[:count] = v end
+  opts.on("-s", "--statics", "show statics when stop") do |v| options[:statics] = true end
   opts.on("-v", "--verbose", "show all frame info") do |v| options[:verbose] = true end
 end.parse!
 options[:interval] = 5 if options[:interval].nil?
@@ -48,6 +49,12 @@ end
 
 
 counter = 0 #sended frame counter
+
+#statics
+max = 0
+min = 0
+sum = 0
+
 conn = HTTP2::Client.new
 conn.on(:frame) do |bytes|
   sock.print bytes
@@ -67,6 +74,11 @@ conn.on(:frame_received) do |frame|
     sended_time = (t.to_i * 1000 + t.usec / 1000.0).round
     elapsed = recived_time - sended_time
 
+    #for statics
+    max = elapsed if max < elapsed
+    min = elapsed if elapsed < min || min == 0
+    sum += elapsed
+
     print "Recieve ACK (#{frame[:payload]}) (#{elapsed}ms)\n"
     counter += 1
     exit(0) if options[:count] && counter == options[:count].to_i
@@ -77,7 +89,8 @@ conn.on(:frame_received) do |frame|
 
     conn.ping(payload)
   elsif frame[:type] == :goaway
-    puts "Recieve GOAWAY(#{frame[:payload]})"
+    puts "\nRecieve GOAWAY(#{frame[:payload]})"
+    puts "max:#{max}, min:#{min}, ave:#{sum / (counter + 1).to_f}" if options[:statics]
   end
 end
 
@@ -95,9 +108,12 @@ while !sock.closed? && !sock.eof?
     conn << data
   rescue SystemExit => err
     puts "\n==== #{options[:count]} frame sended ===="
+    puts "max:#{max}, min:#{min}, ave:#{sum / (counter + 1).to_f}" if options[:statics]
     exit(0)
   rescue Exception => e
     puts "Exception: #{e}, #{e.message} - closing socket."
+    puts "max:#{max}, min:#{min}, ave:#{sum / (counter + 1).to_f}" if options[:statics]
+    exit(0)
     sock.close
   end
 
