@@ -60,7 +60,12 @@ end
 conn.on(:frame_received) do |frame|
   puts "Recive frame: #{frame.inspect}" if options[:verbose]
   if frame[:type] == :ping && frame[:flags].include?(:ack)
-    elapsed = (Time.now.usec / 1000.0).round - (t.usec / 1000.0).round
+    #calculate elapsed time
+    time = Time.now
+    recived_time = (time.to_i * 1000 + time.usec / 1000.0).round
+    sended_time = (t.to_i * 1000 + t.usec / 1000.0).round
+    elapsed = recived_time - sended_time
+
     print "Recieve ACK (#{frame[:payload]}) (#{elapsed}ms)"
     counter += 1
     sleep options[:interval].to_i
