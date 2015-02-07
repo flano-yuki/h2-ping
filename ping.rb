@@ -46,7 +46,7 @@ else
 end
 
 
-counter = 100000000 #use for ping payload
+counter = 0 #sended frame counter
 conn = HTTP2::Client.new
 conn.on(:frame) do |bytes|
   sock.print bytes
@@ -69,9 +69,9 @@ conn.on(:frame_received) do |frame|
     print "Recieve ACK (#{frame[:payload]}) (#{elapsed}ms)"
     counter += 1
     sleep options[:interval].to_i
-    payload = options[:payload] ? options[:payload] : counter.to_s.slice(1..9)
+    payload = options[:payload] ? options[:payload] : ( "%08d" % counter )
     t = Time.now
-    print "\n#{t.strftime("%k:%M:%S")} Send PING (#{payload})... "
+    print "\n#{"% 4d" % counter}.#{t.strftime("%k:%M:%S")} Send PING (#{payload})... "
     conn.ping(payload)
   elsif frame[:type] == :goaway
     puts "\nRecieve GOAWAY(#{frame[:payload]})"
@@ -80,9 +80,9 @@ end
 
 
 puts "\n==== PING #{uri} (interval: #{options[:interval]}sec)===="
-payload = options[:payload] ? options[:payload] : counter.to_s.slice(1..9)
+payload = options[:payload] ? options[:payload] : ( "%08d" % counter )
 t = Time.now
-print "#{t.strftime("%k:%M:%S")} Send PING (#{payload})... "
+print "\n#{"% 4d" % counter}.#{t.strftime("%k:%M:%S")} Send PING (#{payload})... "
 conn.ping(payload)
 
 while !sock.closed? && !sock.eof?
