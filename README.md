@@ -16,11 +16,11 @@ spcify http or https url.
 $ ./ping.rb http://localhost/
 
 ==== PING http://localhost/ (interval: 5sec)====
-23:00:49 Send PING (00000000)... Recieve ACK (00000000) (10ms)
-23:00:54 Send PING (00000001)... Recieve ACK (00000001) (5ms)
-23:00:59 Send PING (00000002)... Recieve ACK (00000002) (5ms)
-23:01:04 Send PING (00000003)... Recieve ACK (00000003) (4ms)
-23:01:09 Send PING (00000004)... Recieve ACK (00000004) (5ms)
+   0. 8:06:52 Send PING (00000000)... Recieve ACK (00000000) (11ms)
+   1. 8:06:57 Send PING (00000001)... Recieve ACK (00000001) (16ms)
+   2. 8:07:02 Send PING (00000002)... Recieve ACK (00000002) (7ms)
+   3. 8:07:07 Send PING (00000003)... Recieve ACK (00000003) (6ms)
+   4. 8:07:12 Send PING (00000004)... Recieve ACK (00000004) (9ms)
 ```
 
 ## options
@@ -28,6 +28,7 @@ $ ./ping.rb http://localhost/
 Usage: ping.rb [options]
     -d, --data [String]              PING payload (8bytes)
     -i, --interval [Integer]         PING interval (sec)
+    -c, --count [Integer]            number of send flame
     -v, --verbose                    show all frame info
 ```
 
