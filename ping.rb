@@ -12,6 +12,7 @@ OptionParser.new do |opts|
   opts.banner = "Usage: ping.rb [options]"
   opts.on("-d", "--data [String]", "PING payload (8bytes)")     do |v| options[:payload] = v end
   opts.on("-i", "--interval [Integer]", "PING interval (sec)") do |v| options[:interval] = v end
+  opts.on("-c", "--count [Integer]", "number of send flame") do |v| options[:count] = v end
   opts.on("-v", "--verbose", "show all frame info") do |v| options[:verbose] = true end
 end.parse!
 options[:interval] = 5 if options[:interval].nil?
@@ -68,10 +69,12 @@ conn.on(:frame_received) do |frame|
 
     print "Recieve ACK (#{frame[:payload]}) (#{elapsed}ms)"
     counter += 1
+    exit(0) if options[:count] && counter == options[:count].to_i
     sleep options[:interval].to_i
     payload = options[:payload] ? options[:payload] : ( "%08d" % counter )
     t = Time.now
     print "\n#{"% 4d" % counter}.#{t.strftime("%k:%M:%S")} Send PING (#{payload})... "
+
     conn.ping(payload)
   elsif frame[:type] == :goaway
     puts "\nRecieve GOAWAY(#{frame[:payload]})"
@@ -90,8 +93,14 @@ while !sock.closed? && !sock.eof?
 
   begin
     conn << data
+  rescue SystemExit => err
+    puts "\n==== #{options[:count]} frame sended ===="
+    exit(0)
   rescue Exception => e
     puts "Exception: #{e}, #{e.message} - closing socket."
     sock.close
   end
+
+
+
 end
