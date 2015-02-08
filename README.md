@@ -33,5 +33,5 @@ Usage: ping.rb [options]
 ```
 
 ## acknowledgment
-Examle of http-2 gem has become a great help.
-thkanks!!
+Example of http-2 gem has become a great help.
+thanks!!
